@@ -1,0 +1,69 @@
+---
+title: "LAB 6"
+author: 'Alain Brou & Doukoure '
+date: "11/2/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r}
+pick_use2 <- (acs2017_ny$AGE >25) & (acs2017_ny$AGE <= 55)
+dat_use2 <- subset(acs2017_ny, pick_use2)
+
+```
+
+
+```{r}
+model_lm1 <- lm(LABFORCE ~ AGE + I(AGE^2) + female+ I(female*AfAm) + AfAm + Asian + race_oth + Hispanic + I(female*white) +I(female*Asian)
+            + educ_hs + educ_somecoll + educ_college + educ_advdeg 
+            + MARST + FAMSIZE+in_Bronx+in_Brooklyn+in_Manhattan+in_Queens+I(female*in_Bronx)+I(female*in_Brooklyn)+I(female*in_Manhattan)+I(female*in_Queens), data = dat_use2)
+summary(model_lm1)
+```
+
+
+```{r, eval=FALSE}
+acs2017_ny$LABFORCE <- as.factor(acs2017_ny$LABFORCE)
+levels(acs2017_ny$LABFORCE) <- c("NA","Not in LF","in LF")
+
+acs2017_ny$MARST <- as.factor(acs2017_ny$MARST)
+levels(acs2017_ny$MARST) <- c("married spouse present","married spouse absent","separated","divorced","widowed","never married")
+
+pick_use1 <- (acs2017_ny$AGE >25) & (acs2017_ny$AGE <= 55)
+dat_use1 <- subset(acs2017_ny, pick_use1)
+model_logit1 <- glm(LABFORCE ~ AGE,
+            family = binomial, data = dat_use1)
+```
+
+```{r}
+acs2017_ny$age_bands <- cut(acs2017_ny$AGE,breaks=c(0,25,35,45,55,65,100))
+table(acs2017_ny$age_bands,acs2017_ny$LABFORCE)
+```
+
+```{r}
+pick_use1 <- (acs2017_ny$AGE >25) & (acs2017_ny$AGE <= 55)
+dat_use1 <- subset(acs2017_ny, pick_use1)
+
+dat_use1$LABFORCE <- droplevels(dat_use1$LABFORCE) 
+# actually not necessary since logit is smart enough to drop unused levels, but helps my personal sense of order
+
+```
+
+baseline  model1,
+```{r}
+model_logit1 <- glm(LABFORCE ~ AGE + I(AGE^2) + female+ I(female*AfAm) + AfAm + Asian + race_oth + Hispanic + I(female*white) +I(female*Asian)
+            + educ_hs + educ_somecoll + educ_college + educ_advdeg 
+            + MARST + FAMSIZE+in_Bronx+in_Brooklyn+in_Manhattan+in_Queens+I(female*in_Bronx)+I(female*in_Brooklyn)+I(female*in_Manhattan)+I(female*in_Queens),
+            family = binomial, data = dat_use1)
+summary(model_logit1)
+
+```
+
+#we see that a woman who is  white or Asian has a less likely to be in the laborforce than African American due to necessity or low skill which can caused them to work lest they lose their job.
+however the woman with the more degree is most likely to be in the labor force.
+also, the entrance in labor force is correalted to the borough you belong to. we see that living in brooklyn and queens are correleated negatively to the appartenace at the labor force with a respective -0.32 and -0.55 which is considerable. this can be explained to high presence of buisness hiring in the black.
+we see age is not anymore significant, though he has positive influence over the presence in the labor force. this could be due to the number of variables to explain.
+
+the OLS analysis to use to compare OLS Vs Logit
+
+
+
